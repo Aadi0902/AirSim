@@ -10,6 +10,7 @@ client = airsim.CarClient()
 client.confirmConnection()
 client.enableApiControl(True)
 car_controls = airsim.CarControls()
+VehicleClient = airsim.VehicleClient()
 
 for idx in range(3):
     # get state of the car
@@ -22,7 +23,7 @@ for idx in range(3):
     client.setCarControls(car_controls)
     print("Go Forward")
     time.sleep(3)   # let car drive a bit
-
+    
     # Go forward + steer right
     car_controls.throttle = 0.5
     car_controls.steering = 1

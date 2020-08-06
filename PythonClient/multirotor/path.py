@@ -38,19 +38,37 @@ client.moveToZAsync(z, 1).join()
 
 # this method is async and we are not waiting for the result since we are passing timeout_sec=0.
 
+
+
 print("flying on path...")
 result = client.moveOnPathAsync([airsim.Vector3r(125,0,z),
                                 airsim.Vector3r(125,-130,z),
                                 airsim.Vector3r(0,-130,z),
                                 airsim.Vector3r(0,0,z)],
                         12, 120,
-                        airsim.DrivetrainType.ForwardOnly, airsim.YawMode(False,0), 20, 1).join()
+                        airsim.DrivetrainType.ForwardOnly, airsim.YawMode(False,0), 20, 1)
 
+# Checking reproducabiltiy
+f = open("Path_dataXYZ.txt","a+")
+f.write("\n\nRunning multirotor: \n")
+state = client.getMultirotorState()
+startTime = state.timestamp
+prevTime = startTime
+print("Checking reproducability:")
+while (state.timestamp - startTime)/1000000000 <=10 :
+    state = client.getMultirotorState()
+    currentTime = state.timestamp
+    if (currentTime-prevTime)/1000000000 >= 0.02:
+        pos = state.kinematics_estimated.position
+        f.write("%f %f %f %f\n" %((currentTime-prevTime)/1000000000,
+                                                  pos.x_val, pos.y_val, pos.z_val))
+        prevTime = currentTime
+print("Ended checking")
 # drone will over-shoot so we bring it back to the start point before landing.
-client.moveToPositionAsync(0,0,z,1).join()
+#client.moveToPositionAsync(0,0,z,1).join()
 print("landing...")
-client.landAsync().join()
+#client.landAsync().join()
 print("disarming...")
-client.armDisarm(False)
+#client.armDisarm(False)
 client.enableApiControl(False)
 print("done.")
